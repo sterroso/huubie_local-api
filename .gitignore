@@ -1,0 +1,7 @@
+# Node modules directory
+/node_modules
+
+# Environment files
+.env*
+.env.*
+
