@@ -1,8 +1,9 @@
 import { body } from "express-validator";
-
-export const MIN_PASSWORD_LENGTH = 6;
-export const MIN_FIRST_NAME_LENGTH = 1;
-export const MIN_LAST_NAME_LENGTH = 1;
+import {
+  MIN_PASSWORD_LENGTH,
+  MIN_FIRST_NAME_LENGTH,
+  MIN_LAST_NAME_LENGTH
+} from '../constants/user.constants.js'
 
 export const createUserDto = [
   body("email").isEmail().withMessage("Must be a valid e-mail address."),
@@ -11,6 +12,7 @@ export const createUserDto = [
     .withMessage(
       `Password must be at least ${MIN_PASSWORD_LENGTH} characters long.`
     ),
+  body("entity_id").isUUID().withMessage("Must provide a valid Entity ID."),
   body("first_name").optional().isString(),
   body("middle_name").optional().isString(),
   body("last_name").optional().isString(),
