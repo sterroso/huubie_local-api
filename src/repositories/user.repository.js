@@ -8,6 +8,7 @@ export const createUser = async (userData) => {
     select: {
       id: true,
       email: true,
+      entity_id: true,
       first_name: true,
       middle_name: true,
       last_name: true,
