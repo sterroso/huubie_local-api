@@ -12,6 +12,7 @@ v18.18.2, sobre el marco de desarrollo (framework)
 [Express](https://expressjs.com) v4.19.2.
 
 El servidor de base de datos es [PostgreSQL](https://postgresql.org) v14.11,
+
 sobre Linux, y la Base de Datos es consultada y manipulada con ayuda de
 [Prisma](https://prisma.io) ORM v5.13.
 
@@ -32,9 +33,34 @@ Para instalar la API, es necesario clonar el presente repositorio, instalar
 las dependencias, establecer algunas variables de entorno y ejecutar los
 comados de inicialización antes de correr la API de manera local.
 
-### Clonar el repositorio
+## Clonar el repositorio
 
     $ git clone https://this.repo.git
     $ cd huubie_local-api
     $ npm i
     $ npm run dev
+
+## Variables de entorno
+
+Para poder correr la API local, requiere la creacion de las variables de
+entorno:
+
+1. Crear un archivo .env en huubie_local-api
+2. En el archivo .env escribir lo siguiente:
+    - PORT=4000
+    
+    - JWT_SECRET="Numero aleatorio generado con el siguiente comando"
+
+        En la terminal posicionados en huubie_local-api (cd huubie_local-api) 
+        copiaras y pegaras:
+
+            head /dev/urandom | sha256sum
+
+    - DATABASE_URL="postgresql://USUARIO:CONTRASENA@localhost:5432/huubie_api_dev?schema=public"
+
+        *Nota:* USUARIO se sustituira por tu nombre de usuario de Postgres, asi como
+        CONTRASENA, y huubie_api_dev dependera del nombre que le asignes a la hora de 
+        crear tu base de datos (puedes ponerle huubie_api_dev y dejar la URL igual, o 
+        puedes ponerle pepito y cambiar .../pepito?schema=public).
+
+## Creacion de la base de datos
