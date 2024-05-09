@@ -5,3 +5,5 @@
 .env*
 .env.*
 
+# Visual Studio Code directory
+/.vscode
