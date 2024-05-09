@@ -7,3 +7,11 @@ export const createUser = async (userData) => {
   
   return await UserRepository.createUser(userData);
 };
+
+export const getUserById = async (userId) => {
+  return await UserRepository.getUserById(userId);
+};
+
+export const getUserByEmail = async (userEmail) => {
+  return await UserRepository.getUserByEmail(userEmail);
+};

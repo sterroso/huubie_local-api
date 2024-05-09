@@ -17,6 +17,7 @@ export const createUserDto = [
   body("middle_name").optional().isString(),
   body("last_name").optional().isString(),
   body("avatar_url").optional().isURL().withMessage("Must be a valid URL."),
+  body("role_id").optional().isUUID().withMessage("Must provide a valid Role ID."),
 ];
 
 export const updateUserDto = [
