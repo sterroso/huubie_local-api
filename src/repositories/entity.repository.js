@@ -22,8 +22,8 @@ export const updateEntity = async (entityId, entityData) => {
     data: entityData,
     select: {
       id: true,
-      legal_name: true,
       tax_id: true,
+      legal_name: true,
       subscription_status: true,
       address_line_one: true,
       address_line_two: true,
@@ -44,3 +44,58 @@ export const deleteEntity = async (entityId, reqUserId) => {
     }
   });
 };
+
+export const getEntityById = async (entityId) => {
+  return await prisma.entity.findUniqueOrThrow({
+    where: { id: entityId, deleted: false },
+    select: {
+      id: true,
+      tax_id: true,
+      legal_name: true,
+      subscription_status: true,
+      address_line_one: true,
+      address_line_two: true
+    }
+  });
+};
+
+export const getEntityByTaxId = async (entityTaxId) => {
+  return await prisma.entity.findUniqueOrThrow({
+    where: { tax_id: entityTaxId, deleted: false },
+    select: {
+      id: true,
+      tax_id: true,
+      legal_name: true,
+      subscription_status: true,
+      address_line_one: true,
+      address_line_two: true,
+      created_at: false,
+      updated_at: false,
+      deleted: false,
+      deleted_at: false,
+      deleted_by: false
+    }
+  });
+};
+
+export const getEntities = async (page = 1, pageSize = 10, query = {}) => {
+  const offset = pageSize * (page - 1);
+
+  return await prisma.entity.findMany({
+    where: { ...query, deleted: false },
+    skip: offset,
+    take: pageSize,
+    select: {
+      id: true,
+      tax_id: true,
+      legal_name: true,
+      subscription_status: true
+    }
+  });
+};
+
+export const getActiveRecordsCount = async (query) => {
+  return await prisma.entity.count({
+    where: { ...query, deleted: false }
+  });
+}
