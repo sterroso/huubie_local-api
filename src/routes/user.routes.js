@@ -1,12 +1,22 @@
 import { Router } from "express";
-import { createUserDto } from "../dtos/user.dto.js";
-import * as UserController from '../controllers/user.controller.js';
+import { createUserDto, updateUserDto } from "../dtos/user.dto.js";
+import * as UserController from "../controllers/user.controller.js";
 import { authenticate } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
 router.post("/", createUserDto, UserController.createUser);
 
-router.get("/:id", authenticate, UserController.getUserById);
+router.get("/:id", UserController.getUserById);
+
+router.get("/email/:email", UserController.getUserByEmail);
+
+router.get("/", UserController.getUsers);
+
+router.put("/:id", updateUserDto, UserController.updateUser);
+
+router.patch("/:id", updateUserDto, UserController.updateUser);
+
+router.delete("/:id", authenticate, UserController.deleteUser);
 
 export default router;
