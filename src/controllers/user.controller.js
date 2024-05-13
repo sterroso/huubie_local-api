@@ -106,10 +106,8 @@ export const deleteUser = async (req, res) => {
 	const { user } = req;
 
 	try {
-		console.log("antes del delete");
-		console.log(id, "id");
 		const deletedUser = await UserService.deleteUser(id, user.userId);
-		console.log(deletedUser, "deletedUser");
+
 		if (!deletedUser) {
 			return res
 				.status(404)

@@ -7,15 +7,15 @@ const router = Router();
 
 router.post("/", createUserDto, UserController.createUser);
 
-router.get("/:id", UserController.getUserById);
+router.get("/:id", authenticate, UserController.getUserById);
 
-router.get("/email/:email", UserController.getUserByEmail);
+router.get("/email/:email", authenticate, UserController.getUserByEmail);
 
-router.get("/", UserController.getUsers);
+router.get("/", authenticate, UserController.getUsers);
 
-router.put("/:id", updateUserDto, UserController.updateUser);
+router.put("/:id", authenticate, updateUserDto, UserController.updateUser);
 
-router.patch("/:id", updateUserDto, UserController.updateUser);
+router.patch("/:id", authenticate, updateUserDto, UserController.updateUser);
 
 router.delete("/:id", authenticate, UserController.deleteUser);
 
