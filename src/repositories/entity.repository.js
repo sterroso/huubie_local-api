@@ -26,8 +26,8 @@ export const updateEntity = async (entityId, entityData) => {
       legal_name: true,
       subscription_status: true,
       address_line_one: true,
-      address_line_two: true,
-    },
+      address_line_two: true
+    }
   });
 };
 

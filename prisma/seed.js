@@ -1,17 +1,24 @@
-import { PrismaClient } from '@prisma/client';
-import { hash } from 'bcryptjs';
+import { faker } from '@faker-js/faker';
 
-const prisma = new PrismaClient();
-
-async function main() {
-    const admin = await prisma.user.upsert({
-      where: { email: "client.admin@client.examplemail.com" },
-      update: {},
-      create: {
-        email: "client.admin@client.examplemail.com",
-        password: await hash("adminpass", 18),
-        first_name: "Admin",
-        last_name: "Default User",
-      },
-    });
+for (let i = 0; i <120; i++) {
+  
+  console.log(faker.person.lastName())
 }
+
+export function createUser(){
+  const   user = {
+    id: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    first_name: faker.person.firstName(),
+    middle_name: faker.person.middleName(),
+    last_name: faker.person.lastName(),
+    avatar_url: faker.image.avatar(),
+    entity_id: faker.string.uuid(),
+    employee_id: faker.string.uuid(),
+  }
+};
+
+
+
+

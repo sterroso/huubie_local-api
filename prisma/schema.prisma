@@ -226,3 +226,4 @@ model EmployeeDocument {
   @@index([deleted])
   @@map("employee_documents")
 }
+
