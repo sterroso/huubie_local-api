@@ -48,7 +48,9 @@ export function createBranch(entityId) {
 export function createEmployee(branchId, areaId, shiftId, positionId, isManager, managerId) {
   const id = faker.string.uuid();
   const myManager = isManager ? "" : faker.helpers.arrayElement(managerId);
+
   
+
   const employee = {
     id: id,
     email: faker.internet.email(),
@@ -68,7 +70,7 @@ export function createEmployee(branchId, areaId, shiftId, positionId, isManager,
     is_manager: isManager,                    
     telephone_number: faker.phone.number(),     
     tax_id: faker.database.mongodbObjectId(),           
-    date_of_birth: faker.date.birthdate(),//TODO: Quitar la hora de la fecha       
+    date_of_birth: faker.date.birthdate().toISOString().slice(0,10),   
     city_of_birth: faker.location.city(),        
     gender: faker.person.gender(),              
     study:  faker.lorem.word({ length: { min: 3, max: 30 }, strategy: 'closest' }),              
@@ -76,17 +78,17 @@ export function createEmployee(branchId, areaId, shiftId, positionId, isManager,
     id_document_number: faker.lorem.word({ length: { min: 3, max: 20 }, strategy: 'closest' }),  
     citizen_id_number: faker.lorem.word({ length: { min: 3, max: 20 }, strategy: 'closest' }),   
     ssn: faker.lorem.word({ length: { min: 5, max: 20 }, strategy: 'closest' }),                  
-    ssn_issue_date: faker.date.anytime(),   //TODO: Quitar la hora de la fecha       
+    ssn_issue_date: faker.date.anytime().toISOString().slice(0,10),     
     pay_cadence: faker.lorem.word({ length: { min: 3, max: 10 }, strategy: 'closest' }),        
-    daily_wage: faker.number.bigInt({ min: 2n, max: 12n }),      //TODO: Investigar como se guardara el salario y actualizar con otro metodo de faker     
-    attendance_bonus: faker.number.bigInt({ min: 2n, max: 12n }),    //TODO: Investigar como se guardara el salario y actualizar con otro metodo de faker
-    other_bonus: faker.number.bigInt({ min: 2n, max: 12n }),        //TODO: Investigar como se guardara el salario y actualizar con otro metodo de faker
-    incentives: faker.number.bigInt({ min: 2n, max: 12n }),      //TODO: Investigar como se guardara el salario y actualizar con otro metodo de faker
-    complimentary_payroll: faker.number.bigInt({ min: 2n, max: 15n }), //TODO: Investigar como se guardara el salario y actualizar con otro metodo de faker
-    regular_payroll:  faker.number.bigInt({ min: 2n, max: 15n }),    //TODO: Investigar como se guardara el salario y actualizar con otro metodo de faker
+    daily_wage: 249.00,
+    attendance_bonus: 5500.00,
+    other_bonus: 1800.00,
+    incentives: 1550.00,
+    complimentary_payroll: 1800.00, 
+    regular_payroll: 7468.00,
     bank_name: faker.lorem.word({ length: { min: 3, max: 20 }, strategy: 'closest' }),          
     bank_account_number: faker.finance.accountNumber(),   
-    date_of_hire: faker.date.anytime(), //TODO: Quitar la hora de la fecha       
+    date_of_hire: faker.date.anytime().toISOString().slice(0,10),     
     date_of_termination: "", 
     status: (Math.random() < 0.9) ? "Activo" : "Inactivo",          
     housing_credit_number: faker.datatype.boolean(),
