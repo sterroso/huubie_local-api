@@ -35,7 +35,7 @@ comados de inicialización antes de correr la API de manera local.
 
 ## Clonar el repositorio
 
-    $ git clone https://this.repo.git
+    $ git clone https://github.com/sterroso/huubie_local-api.git
     $ cd huubie_local-api
     $ npm i
     $ npm run dev
