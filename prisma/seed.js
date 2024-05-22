@@ -1,244 +1,514 @@
-import { faker } from '@faker-js/faker';
-import fs from 'node:fs'
-import { fileURLToPath } from 'node:url'; // Importa el método fileURLToPath para convertir la URL a una ruta de archivo
-import { dirname, join } from 'node:path';
+import { PrismaClient } from "@prisma/client";
+import { randomUUID } from "node:crypto";
+import { hash } from "bcryptjs";
+import { fakerES_MX } from "@faker-js/faker";
 
-// Funcion para generar entidades
-export function createEntity() {
-  const id = faker.string.uuid();
-  const entity = {
-    id: id,
-    legal_name: faker.company.name(),
-    tax_id: faker.string.alphanumeric({ length: { min: 12, max: 13 } }),
-    address_line_one: faker.location.streetAddress() ,
-    address_line_two: "",
-    subscription_status: "Active",
-  };
-  return entity;
-}
+const prisma = new PrismaClient();
 
-// Función para generar USERS
-export function createUser(entityId, employee) {
-  const user = {
-    id: faker.string.uuid(),
-    email: employee?.email || faker.internet.email(),
-    first_name: employee?.first_name || faker.person.firstName(),
-    middle_name: employee?.middle_name || faker.person.middleName(),
-    last_name: employee?.last_name || faker.person.lastName(),
-    avatar_url: employee?.avatar_url || faker.image.avatarLegacy(),
-    entity_id: entityId,
-    employee_id: employee?.id || "",
-  };
-  return user;
-}
+const SALT_LENGTH = 9;
 
-// Función para generar sucursales (branches)
-export function createBranch(entityId) {
-  const id = faker.string.uuid();
-  const branch = {
-    id: id,
-    entity_id: entityId,
-    name: faker.company.name(),
-    address_line_one: faker.location.streetAddress() ,
-    address_line_two: "",
-  };
-  return branch;
-}
+const BRANCHES_COUNT = 7;
+const MIN_EMPLOYEES_COUNT_BY_BRANCH = 18;
+const MAX_EMPLOYEES_COUNT_BY_BRANCH = 54;
+const MIN_MANAGERS_COUNT = 1;
 
-  
-// Función para generar empleados
-export function createEmployee(branchId, areaId, shiftId, positionId, isManager, managerId) {
-  const id = faker.string.uuid();
-  const myManager = isManager ? "" : faker.helpers.arrayElement(managerId);
+const TEST_POSITIONS = [
+  { name: "Gerente General", is_manager: true },
+  { name: "Gerent Regional", is_manager: true },
+  { name: "Gerente de Sucursal", is_manager: true },
+  { name: "Gerente de Turno", is_manager: true },
+  { name: "Cheff", is_manager: true },
+  { name: "Sous Chef", is_manager: true },
+  { name: "Gerente Administrativo", is_manager: true },
+  { name: "Jefe de Recursos Humanos", is_manager: true },
+  { name: "Jefe de Mercadotecnia", is_manager: true },
+  { name: "Jefe de Relaciones Publicas", is_manager: true },
+  { name: "Jefe de Mantenimiento", is_manager: true },
+  { name: "Disenador(a) Grafico(a)", is_manager: false },
+  { name: "Tecnico de Soporte", is_manager: false },
+  { name: "Analista de Nomina", is_manager: false },
+  { name: "Analista de Reclutamiento y Seleccion", is_manager: false },
+  { name: "Capacitador", is_manager: false },
+  { name: "Barista", is_manager: false },
+  { name: "Barman", is_manager: false },
+  { name: "Parrillero", is_manager: false },
+  { name: "Hostess/Host", is_manager: false },
+  { name: "Mesera(o)", is_manager: false },
+  { name: "Cocinera(o)", is_manager: false },
+  { name: "Ayudante de Cocina", is_manager: false },
+  { name: "Cajera(o)", is_manager: false },
+  { name: "Garrotero", is_manager: false },
+  { name: "Chofer", is_manager: false },
+  { name: "Conserje de Limpieza", is_manager: false },
+];
 
-  const employee = {
-    id: id,
-    email: faker.internet.email(),
-    first_name: faker.person.firstName(),
-    middle_name: faker.person.middleName(),
-    last_name: faker.person.lastName(), 
-    branch_id: branchId,          
-    area_id: areaId,                    
-    position_id: positionId,                
-    shift_id: shiftId,                   
-    manager_id: myManager,               
-    address_line_one: faker.location.direction(),     
-    address_line_two: faker.location.direction(),     
-    address_city: faker.location.city(),         
-    address_state: faker.location.state(),        
-    address_zip_code: faker.location.zipCode(),     
-    is_manager: isManager,                    
-    telephone_number: faker.phone.number(),     
-    tax_id: faker.database.mongodbObjectId(),              
-    date_of_birth: faker.date.birthdate().toISOString().slice(0,10),         
-    city_of_birth: faker.location.city(),        
-    gender: faker.person.gender(),              
-    study:  faker.lorem.word({ length: { min: 3, max: 30 }, strategy: 'closest' }),              
-    id_document_type: faker.lorem.word({ length: { min: 3, max: 20 }, strategy: 'closest' }),       
-    id_document_number: faker.lorem.word({ length: { min: 3, max: 20 }, strategy: 'closest' }),  
-    citizen_id_number: faker.lorem.word({ length: { min: 3, max: 20 }, strategy: 'closest' }),   
-    ssn: faker.lorem.word({ length: { min: 5, max: 20 }, strategy: 'closest' }),                  
-    ssn_issue_date: faker.date.anytime().toISOString().slice(0,10),           
-    pay_cadence: faker.lorem.word({ length: { min: 3, max: 10 }, strategy: 'closest' }),        
-    daily_wage: 249.00,
-    attendance_bonus: 5500.00,
-    other_bonus: 1800.00,
-    incentives: 1550.00,
-    complimentary_payroll: 1800.00, 
-    regular_payroll: 7468.00,
-    bank_name: faker.lorem.word({ length: { min: 3, max: 20 }, strategy: 'closest' }),          
-    bank_account_number: faker.finance.accountNumber(),   
-    date_of_hire: faker.date.anytime().toISOString().slice(0,10),        
-    date_of_termination: "", 
-    status: (Math.random() < 0.9) ? "Activo" : "Inactivo",          
-    housing_credit_number: faker.datatype.boolean(),
-    has_social_security: faker.datatype.boolean(),
-    has_housing_credit: faker.datatype.boolean(),
-    id_document_copy: faker.datatype.boolean(),        
-    citizen_id_copy: faker.datatype.boolean(),      
-    job_application_form: faker.datatype.boolean(),  
-    proof_of_address: faker.datatype.boolean(),      
-    proof_of_studies: faker.datatype.boolean(),    
-  };
-  return employee;
-}
+const TEST_AREAS_NAMES = [
+  "Administracion",
+  "Caja",
+  "Cocina caliente",
+  "Cocina fria",
+  "Parrilla",
+  "Barra",
+  "Recepcion",
+  "Terraza",
+  "Patio",
+  "Planta Baja, Zona A",
+  "Planta Baja, Zona B",
+  "Planta Baja, Zona C",
+  "Piso 1, Zona D",
+  "Piso 1, Zona E",
+  "Piso 2",
+];
 
-// Funcion para generar documentos de empleados
-export function createEmployeeDocument(employeeId) {
-  const id = faker.string.uuid();
-  const employeeDocument = {
-    id: id,
-    employee_id: employeeId,
-    name: faker.lorem.word(),
-    url: faker.internet.url(),
-    description: faker.lorem.sentence(),
-  };
-  return employeeDocument;
-}
+const MIN_AREAS_COUNT = 3;
+const MAX_AREAS_COUNT = TEST_AREAS_NAMES.length;
 
-// Funcion para generar shifts (shifts -> turnos)
-export function createShift(branchId) {
-  const shifts = [
-    { name: "Matutino", start_time: "1970-01-01 07:00:00.000", end_time: "1970-01-01 14:00:00.000" },
-    { name: "Vespertino", start_time: "1970-01-01 14:00:00.000", end_time: "1970-01-01 21:00:00.000" },
-    { name: "Nocturno", start_time: "1970-01-01 21:00:00.000", end_time: "1970-01-01 04:00:00.000" }
-  ];
+const SINGLE_SHIFT_MORNINGS = {
+  start_time: "1970-01-01 07:00:00.000",
+  end_time: "1970-01-01 15:00:00.000",
+  hours: 8,
+};
 
-  return shifts.map(shift => ({
-    id: faker.string.uuid(),
-    name: shift.name,
-    branch_id: branchId,
-    start_time: shift.start_time,
-    end_time: shift.end_time,
-    hours: 7
-  }));
-}
+const SINGLE_SHIFT_NIGHT = {
+  start_time: "1970-01-01 20:00:00.000",
+  end_time: "1970-01-02 03:00:00.000",
+  hours: 7,
+};
 
+const DOUBLE_SHIFTS_MORNING = [
+  {
+    name: "Desayunos",
+    start_time: "1970-01-01 07:00:00.000",
+    end_time: "1970-01-01 15:00:00.000",
+    hours: 8,
+  },
+  {
+    name: "Comidas",
+    start_time: "1970-01-01 12:00:00.000",
+    end_time: "1970-01-01 20:00:00.000",
+    hours: 8,
+  },
+];
 
-// Funcion para generar positions
-function createPosition(entityId) {
-  const positions = ["Mesero", "Cocinero", "Chef", "Lavaplatos", "Cajero"];
+const DOUBLE_SHIFTS_EVENING = [
+  {
+    name: "Tarde",
+    start_time: "1970-01-01 12:00:00.000",
+    end_time: "1970-01-01 20:00:00.000",
+    hours: 8,
+  },
+  {
+    name: "Noche",
+    start_time: "1970-01-01 18:00:00.000",
+    end_time: "1970-01-02 01:00:00.000",
+    hours: 7,
+  },
+];
 
-  return positions.map(position => ({
-    id: faker.string.uuid(),
-    title: position,
-    description: faker.lorem.paragraph(),
-    entity_id: entityId
-  }));
-}
+const TRIPLE_SHIFTS = [
+  {
+    name: "Matutino",
+    start_time: "1970-01-01 07:00:00.000",
+    end_time: "1970-01-01 15:00:00.000",
+    hours: 8,
+  },
+  {
+    name: "Vespertino",
+    start_time: "1970-01-01 14:00:00.000",
+    end_time: "1970-01-01 22:00:00.000",
+    hours: 8,
+  },
+  {
+    name: "Nocturno",
+    start_time: "1970-01-01 20:00:00.000",
+    end_time: "1970-01-02 03:00:00.000",
+    hours: 7,
+  },
+];
 
+const SHIFTS_TYPE = [
+  "SINGLE_SHIFT_MORNINGS",
+  "SINGLE_SHIFT_NIGHT",
+  "DOUBLE_SHIFTS_MORNING",
+  "DOUBLE_SHIFTS_EVENING",
+  "TRIPLE_SHIFTS",
+];
 
-// Funcion para generar areas
-export function createArea(branchId) {
-  const id = faker.string.uuid();
-  const area = {
-    id: id,
-    name: faker.lorem.word({ length: { min: 3, max: 15 }, strategy: 'closest' }),
-    branch_id: branchId,
-  };
-  return area;
-}
+const getRandomShiftTypeIndex = () => {
+  return Math.floor(SHIFTS_TYPE.length * Math.random());
+};
 
+const getRandomInt = (min, max) => {
+  const range = max - min;
 
-export function generateEntityData() {
-  const entities = [];
-  const currentEntity = createEntity()
-  //* CREATE ENTITY
-  entities.push(currentEntity); 
+  return min + Math.floor(Math.random() * range);
+};
 
-  //* Aqui se guardara toda la data
-  const branches = []; 
-  const employees = []; 
-  const employeeDocuments = []; 
-  const areas = []; 
-  const shifts = [];
-  const positions = createPosition(currentEntity.id);
-  const users = [];
-  const managerIds = [];
+const main = async () => {
+  try {
+    // 1. Create Builtin Roles
+    // 1.1. Huubie Superuser Builtin Role
+    const huubieSuperUserRole = await prisma.role.create({
+      data: {
+        name: "Huubie Superuser",
+        is_builtin: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
 
-  // Aqui se crea la BRANCH
-  for (let i = 0; i < 3; i++) {
-    const currentBranch = createBranch(currentEntity.id); 
-    branches.push(currentBranch); 
+    // 1.2. Entity Owner Builtin Role
+    const entityOwnerRole = await prisma.role.create({
+      data: {
+        name: "Entity Owner",
+        is_builtin: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
 
-    const branchShifts = createShift(currentBranch.id);
-    shifts.push(...branchShifts);
+    // 1.3. Entity Admin Builtin Role
+    const entityAdminRole = await prisma.role.create({
+      data: {
+        name: "Entity Admin",
+        is_builtin: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
 
+    // 1.4. Entity User Builtin Role
+    const entityUserRole = await prisma.role.create({
+      data: {
+        name: "Entity User",
+        is_builtin: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
 
-    //Aqui se crea EMPLOYEE
-    for (let j = 0; j < 7; j++) { 
-      const area = createArea(currentBranch.id); 
-      areas.push(area);
+    // 2. Create Huubie Superuser Builtin user
+    const builtinSuperUser = await prisma.user.create({
+      data: {
+        email: "huubie_superuser@test.com",
+        password: await hash("unbreakable", SALT_LENGTH),
+        first_name: "Superuser",
+        last_name: "Huubie",
+        role_id: huubieSuperUserRole.id,
+      },
+      select: {
+        id: true,
+        email: true,
+        first_name: true,
+        last_name: true,
+      },
+    });
 
-      const shift = faker.helpers.arrayElement(branchShifts);
-      const position = faker.helpers.arrayElement(positions);
-      
-      const isManager = faker.datatype.boolean(0.1);
+    // 3. Create Test Entity
+    const testEntity = await prisma.entity.create({
+      data: {
+        legal_name: "Entidad de Prueba, S.A. de C.V.",
+        tax_id: "XAXX010101000",
+      },
+      select: {
+        id: true,
+        legal_name: true,
+        tax_id: true,
+      },
+    });
 
-      if (managerIds.length === 0 || isManager) {
-        const siSoyManager = true
-        const manager = createEmployee(currentBranch.id, area.id, shift.id, position.id, siSoyManager, "");
-        employees.push(manager);
-        managerIds.push(manager.id); 
-      } 
-    
-      const employee = createEmployee(currentBranch.id, area.id, shift.id, position.id, isManager, managerIds);
-      employees.push(employee);
+    // 4. Create Test Entity Users
+    // 4.1. Entity Owner
+    const testEntityOwner = await prisma.user.create({
+      data: {
+        email: "entity_owner@test.com",
+        password: await hash("owner1pass", SALT_LENGTH),
+        first_name: "Propietario",
+        last_name: "Entidad de Prueba",
+        entity_id: testEntity.id,
+      },
+      select: {
+        id: true,
+        email: true,
+        first_name: true,
+        last_name: true,
+      },
+    });
 
-      const employeeDocument = createEmployeeDocument(employee.id); 
-      employeeDocuments.push(employeeDocument); 
+    // 4.2. Entity Admin
+    const testEntityAdmin = await prisma.user.create({
+      data: {
+        email: "entity1_admin@test.com",
+        password: await hash("admin1pass", SALT_LENGTH),
+        first_name: "Admin",
+        last_name: "Entidad de Prueba",
+        entity_id: testEntity.id,
+      },
+      select: {
+        id: true,
+        email: true,
+        first_name: true,
+        last_name: true,
+      },
+    });
 
+    const positions = [];
+    // 5. Create Test Entity Positions
+    TEST_POSITIONS.forEach(async (position) => {
+      const newPosition = await prisma.position.create({
+        data: {
+          title: position.name,
+          description: fakerES_MX.lorem.sentence,
+          entity_id: testEntity.id,
+        },
+        select: {
+          id: true,
+          title: true,
+        },
+      });
+
+      positions.push(newPosition);
+    });
+
+    // 6. Create Test Entity Branches
+    for (let i = 0; i < BRANCHES_COUNT; i++) {
+      // 6.1. Create a new branch
+      const newBranch = await prisma.branch.create({
+        data: {
+          entity_id: testEntity.id,
+          name: fakerES_MX.company.name(),
+          address_line_one: fakerES_MX.location.streetAddress(true),
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      // 6.2. Create Areas for the new Branch
+      const areasCount = getRandomInt(MIN_AREAS_COUNT, MAX_AREAS_COUNT);
+
+      // 6.2.1 Always create an Administration area per branch.
+      const newBranchAdministrationArea = await prisma.area.create({
+        data: {
+          name: "Administracion",
+          branch_id: newBranch.id
+        },
+        select: {
+          id: true,
+          name: true
+        }
+      });
+
+      // 6.2.2 Create non-administrative areas
+      const areasCreated = ["Administracion"];
+      for (let j = 0; j < areasCount; j++) {
+        const areasLeft = TEST_AREAS_NAMES.filter(
+          (area) => !areasCreated.includes(area)
+        );
+        const randomIndex = Math.floor(areasLeft.length * Math.random());
+        const newAreaName = areasLeft[randomIndex];
+        const newArea = await prisma.area.create({
+          data: {
+            name: newAreaName,
+            branch_id: newBranch.id,
+          },
+          select: {
+            id: true,
+            name: true,
+          },
+        });
+        areasCreated.push(newArea.name);
+      }
+
+      // 6.3 Create Shifts for the new Branch
+      const newBranchShifts = [];
+      const randomShiftsType = getRandomShiftTypeIndex();
+      switch (randomShiftsType) {
+        case "SINGLE_SHIFT_MORNINGS":
+          newBranchShifts.push(
+            await prisma.shift.create({
+              data: {
+                name: "Unico",
+                start_time: SINGLE_SHIFT_MORNINGS.start_time,
+                end_time: SINGLE_SHIFT_MORNINGS.end_time,
+                hours: SINGLE_SHIFT_MORNINGS.hours,
+              },
+              select: {
+                id: true,
+                name: true,
+                start_time: true,
+                end_time: true,
+                hours: true,
+              },
+            })
+          );
+          break;
+        case "SINGLE_SHIFT_NIGHT":
+          newBranchShifts.push(
+            await prisma.shift.create({
+              data: {
+                name: "Unico",
+                start_time: SINGLE_SHIFT_NIGHT.start_time,
+                end_time: SINGLE_SHIFT_NIGHT.end_time,
+                hours: SINGLE_SHIFT_NIGHT.hours,
+              },
+              select: {
+                id: true,
+                name: true,
+                start_time: true,
+                end_time: true,
+                hours: true,
+              },
+            })
+          );
+          break;
+        case "DOUBLE_SHIFTS_MORNING":
+          DOUBLE_SHIFTS_MORNING.forEach(async (shift) => {
+            const newShift = await prisma.shift.create({
+              data: {
+                name: shift.name,
+                start_time: shift.start_time,
+                end_time: shift.end_time,
+                hours: shift.hours,
+              },
+              select: {
+                id: true,
+                name: true,
+                start_time: true,
+                end_time: true,
+                hours: true,
+              },
+            });
+            newBranchShifts.push(newShift);
+          });
+          break;
+        case "DOUBLE_SHIFTS_EVENING":
+          DOUBLE_SHIFTS_EVENING.forEach(async (shift) => {
+            const newShift = await prisma.shift.create({
+              data: {
+                name: shift.name,
+                start_time: shift.start_time,
+                end_time: shift.end_time,
+                hours: shift.hours,
+              },
+              select: {
+                id: true,
+                name: true,
+                start_time: true,
+                end_time: true,
+                hours: true,
+              },
+            });
+            newBranchShifts.push(newShift);
+          });
+          break;
+        case "TRIPLE_SHIFTS":
+          TRIPLE_SHIFTS.forEach(async (shift) => {
+            const newShift = await prisma.shift.create({
+              data: {
+                name: shift.name,
+                start_time: shift.start_time,
+                end_time: shift.end_time,
+                hours: shift.hours,
+              },
+              select: {
+                id: true,
+                name: true,
+                start_time: true,
+                end_time: true,
+                hours: true,
+              },
+            });
+            newBranchShifts.push(newShift);
+          });
+          break;
+        default:
+          break;
+      }
+
+      // 6.4 Create Employees for the new Branch
+      const employeesCount = getRandomInt(
+        MIN_EMPLOYEES_COUNT_BY_BRANCH,
+        MAX_EMPLOYEES_COUNT_BY_BRANCH
+      );
+
+      const managersCount = getRandomInt(
+        MIN_MANAGERS_COUNT,
+        Math.max(MIN_MANAGERS_COUNT, Math.floor(employeesCount * 0.1))
+      );
+
+      // 6.4.1 Create Managers
+      const branchManagers = [];
+      const managerPositionsTaken = [];
+      for (let j = 0; j < managersCount; j++) {
+        const newManagerGender = fakerES_MX.person.sexType();
+        const newManagerFirstName =
+          fakerES_MX.person.firstName(newManagerGender);
+        const newManagerLastName = fakerES_MX.person.lastName();
+        const newManagerEmail = fakerES_MX.internet.email({
+          firstName: newManagerFirstName,
+          lastName: newManagerLastName,
+          provider: "huubie.dev",
+        });
+        const testManagerPositions = TEST_POSITIONS.filter(
+          (position) => position.is_manager
+        );
+        const managerPositionsAvailable = positions.filter((position) =>
+          testManagerPositions.some(
+            (element) =>
+              element.name === position.title &&
+              !managerPositionsTaken.includes(position.title)
+          )
+        );
+        const newManagerPositionIndex = Math.floor(Math.random() * managerPositionsAvailable.length);
+        const newManagerPosition = managerPositionsAvailable[newManagerPositionIndex];
+        managerPositionsTaken.push(newManagerPosition.title);
+        const newManager = await prisma.employee.create({
+          data: {
+            branch_id: newBranch.id,
+            email: newManagerEmail,
+            first_name: newManagerFirstName,
+            last_name: newManagerLastName,
+            gender: newManagerGender === "female" ? "femenino" : "masculino",
+            area_id: newBranchAdministrationArea.id,
+            shift_id: newBranchShifts[0].id,
+            is_manager: true,
+            telephone_number: fakerES_MX.helpers.fromRegExp('\+52 \([0-9]{3}\) [0-9]{3}\-[0-9]{4}'),
+            position_id: newManagerPosition.id,
+            tax_id: fakerES_MX.helpers.fromRegExp('[A-Z]{4}[0-9]{6}[A-Z0-9]{3}'),
+            citizen_id_number: fakerES_MX.helpers.fromRegExp('[A-Z]{4}[0-9]{6}[HM]{1}[A-Z]{2}[A-Z]{3}[A-Z0-9]{2}'),
+          },
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+          },
+        });
+
+        branchManagers.push(newManager);
+      }
+
+      // 6.4.2 Create Non-managers
+      for (let j = 0; j < employeesCount; j++) {}
     }
-  }
+  } catch (err) {}
+};
 
-  // CREACION DE USERS
-  for (let j = 0; j < 5; j++) {
-    const randomEmployee = employees[Math.floor(Math.random() * employees.length)];
-    users.push(createUser(currentEntity.id, randomEmployee))
-  }
-
-  const data = { entities, branches, employees, employeeDocuments, areas, shifts, positions, users };
-  console.log(data)
-  return data
+try {
+  await main();
+  await prisma.$disconnect();
+} catch (error) {
+  console.error(error);
+  await prisma.$disconnect();
+  process.exit(1);
 }
-
-// Generar datos para múltiples entidades
-export function generateData(numEntities) {
-  const data = [];
-  for (let i = 0; i < numEntities; i++) {
-    data.push(generateEntityData());
-  }
-  return data;
-}
-
-// Generar datos
-const data = generateData(3);
-
-// Esto es para generar el archivo db.json dentro del proyecto
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const filePath = join(__dirname, 'db.json');
-
-fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-
-console.log('Archivo db.json creado con éxito en:', filePath);
