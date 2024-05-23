@@ -4,10 +4,9 @@ import { authenticate } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/", AreaController.getAreas); //? elimine el authenticate pero si te da problemas vuelvelo a poner
-//* No hay mucho que hacer aqui, asi que ve a areaController =>
-//* http://localhost:4000/api/v1/areas/  <= este es el path con el que podras probar en postman/thunder client
-
+router.get("/", AreaController.getAreas);
+router.get("/:bid", AreaController.getAreasByBranchId);
+// router.get("/:bid/:id", AreaController.getAreaById); // todo
 
 // router.get("/", authenticate, AreaController.getAreas); //* aqui esta el original
 // router.get("/:id", authenticate, AreaController.getAreaById);
