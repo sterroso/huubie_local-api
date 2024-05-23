@@ -22,4 +22,12 @@ app.use("/api/v1/positions", PositionRoutes);
 app.use("/api/v1/areas", AreaRoutes);
 app.use("/api/v1/employees", EmployeeRoutes);
 
+//! Para que veas mas ordenadas las tareas y los comentario, instala la extension: Better Comments es de Aaron Bond
+
+//* Aqui inicia todo, con el enrutado => http://localhost:4000/api/v1/areas
+//* y la modularizacion de las rutas.
+
+//todo: Tu te encargaras de conectar el back con el front de AREAS, solo nos enfocaremos en los get
+//* Ahora ve a area.routes ahi te explicare los siguientes pasos =>
+
 export default app;
