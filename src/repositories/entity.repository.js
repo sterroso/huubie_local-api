@@ -2,6 +2,21 @@ import fs, { readFile, writeFile } from 'fs';
 import path from 'path';
 
 
+export const updateEntity = async (entityId, entityData) => {
+  return await prisma.entity.update({
+    where: { id: entityId, deleted: false },
+    data: entityData,
+    select: {
+      id: true,
+      tax_id: true,
+      legal_name: true,
+      subscription_status: true,
+      address_line_one: true,
+      address_line_two: true
+    }
+  });
+};
+
 export const getEntitiesFromDbJson = async () => {
   const filePath = path.join(process.cwd(), "prisma", "db.json");
   const data = await fs.promises.readFile(filePath, "utf-8");
