@@ -5,16 +5,18 @@ import { authenticate } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.post("/", authenticate, createEntityDto, EntityController.createEntity);
-
-router.patch("/:id", authenticate, updateEntityDto, EntityController.updateEntity);
-
-router.put("/:id", authenticate, updateEntityDto, EntityController.updateEntity);
-
-router.delete("/:id", authenticate, EntityController.deleteEntity);
-
-router.get("/:id", authenticate, EntityController.getEntityById);
-
-router.get("/", authenticate, EntityController.getEntities);
+router.get("/", EntityController.getEntities);
 
 export default router;
+
+
+
+// router.post("/", authenticate, createEntityDto, EntityController.createEntity);
+
+// router.patch("/:id", authenticate, updateEntityDto, EntityController.updateEntity);
+
+// router.put("/:id", authenticate, updateEntityDto, EntityController.updateEntity);
+
+// router.delete("/:id", authenticate, EntityController.deleteEntity);
+
+// router.get("/:id", authenticate, EntityController.getEntityById);

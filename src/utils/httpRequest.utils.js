@@ -23,3 +23,4 @@ export const validatePageSize = (input) => {
     ? DEFAULT_PAGE_SIZE
     : parsedValue;
 }; 
+
