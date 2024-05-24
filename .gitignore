@@ -5,5 +5,8 @@
 .env*
 .env.*
 
+# db.json para no generar conflictos en las PR
+/prisma/db.json
+
 # Visual Studio Code directory
 /.vscode

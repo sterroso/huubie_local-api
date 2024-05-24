@@ -9,6 +9,7 @@
 		"seed": "node prisma/seed.js"
 	},
 	"scripts": {
+		"seed": "node ./prisma/seed.js",
 		"dev": "nodemon --watch ./src ./server.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
