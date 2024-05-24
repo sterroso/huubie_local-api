@@ -1,4 +1,3 @@
-// import { promises as fs } from 'fs'; //* el file system te ayuda a leer la informacion de json
 import fs, { readFile, writeFile } from "fs";
 
 import path from "path";

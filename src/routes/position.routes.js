@@ -4,8 +4,10 @@ import { authenticate } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/", authenticate, PositionController.getPositions);
+router.get("/", PositionController.getPositions);
 
-router.get("/:id", authenticate, PositionController.getPositionById);
+router.get("/:eid", PositionController.getPositionsByEntityId);
+
+router.get("/id/:id", PositionController.getPositionById);
 
 export default router;

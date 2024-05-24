@@ -2,17 +2,18 @@ import * as UserService from "../services/user.service.js";
 import { validationResult } from "express-validator";
 import { validatePage, validatePageSize } from "../utils/httpRequest.utils.js";
 
-export const createUser = async (req, res) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	}
+export const getUsers = async (req, res) => {
+	// const { page, pageSize } = req.query;
+	// const pageNum = validatePage(page);
+	// const pageSizeNum = validatePageSize(pageSize);
+	// const query = {};
 
 	try {
-		const user = await UserService.createUser(req.body);
-
-		res.status(201).json({ user: user });
+		const users = await UserService.getUsers();
+		if (!users || users.length < 1) {
+			return res.status(404).json({ message: "No users were found." });
+		}
+		res.status(200).json({ users: users });
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
@@ -50,73 +51,81 @@ export const getUserByEmail = async (req, res) => {
 	}
 };
 
-export const getUsers = async (req, res) => {
-	const { page, pageSize } = req.query;
-
-	const pageNum = validatePage(page);
-
-	const pageSizeNum = validatePageSize(pageSize);
-
-	const query = {};
-
+export const getUsersByEntityId = async (req, res) => {
+	const { eid } = req.params;
+	console.log("entityid", eid);
 	try {
-		const users = await UserService.getUsers(pageNum, pageSizeNum, query);
-
+		const users = await UserService.getUsersByEntityId(eid);
 		if (!users || users.length < 1) {
 			return res.status(404).json({ message: "No users were found." });
 		}
-
-		res.status(200).json({ users: users });
+		res.status(200).json({ user: users });
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
 };
 
-export const updateUser = async (req, res) => {
-	const { id } = req.params;
-	console.log(id, "id");
+// export const createUser = async (req, res) => {
+// 	const errors = validationResult(req);
 
-	const user = req.body;
-	const oldUser = await UserService.getUserById(id);
-	const newUser = { ...oldUser, ...user };
-	console.log(newUser, "newUser");
+// 	if (!errors.isEmpty()) {
+// 		return res.status(400).json({ errors: errors.array() });
+// 	}
 
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	}
-	try {
-		const updatedUser = await UserService.updateUser(id, newUser);
+// 	try {
+// 		const user = await UserService.createUser(req.body);
 
-		if (!updatedUser) {
-			return res
-				.status(404)
-				.json({ message: `User with ID ${id} was not found.` });
-		}
+// 		res.status(201).json({ user: user });
+// 	} catch (error) {
+// 		res.status(500).json({ error: error.message });
+// 	}
+// };
 
-		res.status(200).json({ User: updatedUser });
-	} catch (error) {
-		console.log(error);
-		res.status(500).json({ error: error.message });
-	}
-};
+// export const updateUser = async (req, res) => {
+// 	const { id } = req.params;
+// 	console.log(id, "id");
 
-export const deleteUser = async (req, res) => {
-	const { id } = req.params;
-	const { user } = req;
+// 	const user = req.body;
+// 	const oldUser = await UserService.getUserById(id);
+// 	const newUser = { ...oldUser, ...user };
+// 	console.log(newUser, "newUser");
 
-	try {
-		const deletedUser = await UserService.deleteUser(id, user.userId);
+// 	const errors = validationResult(req);
+// 	if (!errors.isEmpty()) {
+// 		return res.status(400).json({ errors: errors.array() });
+// 	}
+// 	try {
+// 		const updatedUser = await UserService.updateUser(id, newUser);
 
-		if (!deletedUser) {
-			return res
-				.status(404)
-				.json({ message: `User with ID ${id} was not found.` });
-		}
+// 		if (!updatedUser) {
+// 			return res
+// 				.status(404)
+// 				.json({ message: `User with ID ${id} was not found.` });
+// 		}
 
-		res.status(200).json({ deleted: deletedUser.id });
-	} catch (error) {
-		console.log("error");
-		res.status(500).json({ error: error.message });
-	}
-};
+// 		res.status(200).json({ User: updatedUser });
+// 	} catch (error) {
+// 		console.log(error);
+// 		res.status(500).json({ error: error.message });
+// 	}
+// };
+
+// export const deleteUser = async (req, res) => {
+// 	const { id } = req.params;
+// 	const { user } = req;
+
+// 	try {
+// 		const deletedUser = await UserService.deleteUser(id, user.userId);
+
+// 		if (!deletedUser) {
+// 			return res
+// 				.status(404)
+// 				.json({ message: `User with ID ${id} was not found.` });
+// 		}
+
+// 		res.status(200).json({ deleted: deletedUser.id });
+// 	} catch (error) {
+// 		console.log("error");
+// 		res.status(500).json({ error: error.message });
+// 	}
+// };
