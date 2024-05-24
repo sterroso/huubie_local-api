@@ -1,11 +1,12 @@
 import bcrypt from "bcryptjs";
-import * as UserRepository from "../repositories/user.repository.js";
+import * as UserRepository from "../repositories/user.repository.fs.js";
 
-export const createUser = async (userData) => {
-	const salt = await bcrypt.genSalt(10);
-	userData.password = await bcrypt.hash(userData.password, salt);
+export const getUsers = async (page, pageSize, query) => {
+	return await UserRepository.getUsers(page, pageSize, query);
+};
 
-	return await UserRepository.createUser(userData);
+export const getUsersByEntityId = async (entityId) => {
+	return await UserRepository.getUsersByEntityId(entityId);
 };
 
 export const getUserById = async (userId) => {
@@ -16,14 +17,17 @@ export const getUserByEmail = async (userEmail) => {
 	return await UserRepository.getUserByEmail(userEmail);
 };
 
-export const getUsers = async (page, pageSize, query) => {
-	return await UserRepository.getUsers(page, pageSize, query);
-};
+// export const createUser = async (userData) => {
+// 	const salt = await bcrypt.genSalt(10);
+// 	userData.password = await bcrypt.hash(userData.password, salt);
 
-export const updateUser = async (id, data) => {
-	return await UserRepository.updateUser(id, data);
-};
+// 	return await UserRepository.createUser(userData);
+// };
 
-export const deleteUser = async (id, reqUser) => {
-	return await UserRepository.deleteUser(id, reqUser);
-};
+// export const updateUser = async (id, data) => {
+// 	return await UserRepository.updateUser(id, data);
+// };
+
+// export const deleteUser = async (id, reqUser) => {
+// 	return await UserRepository.deleteUser(id, reqUser);
+// };

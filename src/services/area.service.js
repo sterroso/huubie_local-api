@@ -1,12 +1,11 @@
-import * as AreaRepository from "../repositories/area.repository.js";
-import * as AreaRepositoryFS from "../repositories/area.repository.fs.js";
+import * as AreaRepository from "../repositories/area.repository.fs.js";
 
 export const getAreas = async () => {
-	return await AreaRepositoryFS.getAllAreas();
+	return await AreaRepository.getAllAreas();
 };
 
 export const getAreasByBranchId = async (bid) => {
-	return await AreaRepositoryFS.getAreasByBranchId(bid);
+	return await AreaRepository.getAreasByBranchId(bid);
 };
 
 // Código viejo
