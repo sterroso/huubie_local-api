@@ -1,28 +1,18 @@
-import { validationResult } from 'express-validator';
 import * as EntityService from '../services/entity.service.js';
-import { getUserById } from '../services/user.service.js';
-import {
-  validatePage,
-  validatePageSize
-} from '../utils/httpRequest.utils.js';
 
 export const getEntities = async (req, res) => {
-  
   try {
     const entitiesFromDbJson = await EntityService.getEntitiesFromDbJson();
-    
-    if (entitiesFromDbJson) res.status(200).json(entitiesFromDbJson);
-    else res.status(404).json({ message: "No entities were found in database." });
-    
+
+    if (entitiesFromDbJson.length > 0) {
+      res.status(200).json(entitiesFromDbJson);
+    } else {
+      res.status(404).json({ message: "No entities were found in database." });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-
 };
-
-
-
-
 
 
 // export const createEntity = async (req, res) =>  {

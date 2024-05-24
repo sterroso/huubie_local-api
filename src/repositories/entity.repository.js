@@ -1,26 +1,18 @@
-import { promises as fs } from 'fs';
+import fs, { readFile, writeFile } from 'fs';
 import path from 'path';
 
+
 export const getEntitiesFromDbJson = async () => {
-  try {
-    const filePath = path.join(process.cwd(), 'prisma', 'db.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData = JSON.parse(data);
+  const filePath = path.join(process.cwd(), "prisma", "db.json");
+  const data = await fs.promises.readFile(filePath, "utf-8");
 
-    const allEntities = jsonData.entities.map(entity => ({
-      id: entity.id,
-      legal_name: entity.legal_name,
-      tax_id: entity.tax_id,
-      address_line_one: entity.address_line_one,
-      address_line_two: entity.address_line_two,
-      subscription_status: entity.subscription_status,
-    }));
-
+  if (data) {
+    let jsonData = await JSON.parse(data);
+    const allEntities = jsonData.flatMap((item) => item.entities);
     return allEntities;
-  } catch (error) {
-    throw new Error(`Failed to read or parse db.json: ${error.message}`);
   }
 };
+
 
 
 
@@ -43,7 +35,6 @@ export const getEntitiesFromDbJson = async () => {
 //     }
 //   });
 // };
-
 
 
 // export const createEntity = async (entityData) => {

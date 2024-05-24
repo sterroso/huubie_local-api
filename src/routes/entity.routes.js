@@ -5,7 +5,7 @@ import { authenticate } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/", authenticate, EntityController.getEntities);
+router.get("/", EntityController.getEntities);
 
 export default router;
 
